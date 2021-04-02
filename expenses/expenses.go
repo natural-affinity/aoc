@@ -41,10 +41,26 @@ func ReadReport(path string) (Report, error) {
 }
 
 func (r *Report) ProductOfTwo() (int, error) {
-	for _, v := range r.Itemized {
-		diff := 2020 - v
-		if _, ok := r.Unique[diff]; ok == true {
-			return (diff * v), nil
+	for _, exp := range r.Itemized {
+		diff := 2020 - exp
+
+		if _, ok := r.Unique[diff]; ok {
+			return (diff * exp), nil
+		}
+	}
+
+	return -1, errors.New("No numbers found")
+}
+
+func (r *Report) ProductOfThree() (int, error) {
+	for i, exp1 := range r.Itemized {
+		total := 2020 - exp1
+
+		for _, exp2 := range r.Itemized[i+1:] {
+			diff := total - exp2
+			if _, ok := r.Unique[diff]; ok {
+				return (diff * exp1 * exp2), nil
+			}
 		}
 	}
 

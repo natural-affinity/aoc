@@ -46,8 +46,8 @@ func TestProductOfTwo(t *testing.T) {
 		Result int
 		Error  error
 	}{
-		{"product.of.two_one.match", 996075, nil},
-		{"product.of.two_no.match", -1, errors.New("No numbers found")},
+		{"product.match", 996075, nil},
+		{"product.no.match", -1, errors.New("No numbers found")},
 	}
 
 	for _, tc := range cases {
@@ -66,5 +66,32 @@ func TestProductOfTwo(t *testing.T) {
 				result, err)
 		}
 	}
+}
 
+func TestProductOfThree(t *testing.T) {
+	cases := []struct {
+		Name   string
+		Result int
+		Error  error
+	}{
+		{"product.match", 51810360, nil},
+		{"product.no.match", -1, errors.New("No numbers found")},
+	}
+
+	for _, tc := range cases {
+		p := path.Join("testdata", tc.Name+".input")
+
+		report, _ := expenses.ReadReport(p)
+		result, err := report.ProductOfThree()
+
+		r := !(result == tc.Result)
+		e := !gotanda.CompareError(err, tc.Error)
+
+		if e || r {
+			t.Errorf("\nTest: %s\nExpected:\n %d %s\nActual:\n %d %s",
+				tc.Name,
+				tc.Result, tc.Error,
+				result, err)
+		}
+	}
 }
