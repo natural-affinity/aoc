@@ -13,26 +13,27 @@ func ReadReport(path string) ([]int, map[int]struct{}, error) {
 		return nil, nil, err
 	}
 
-	var expenses []int
-	m := make(map[int]struct{})
+	var rpt []int
+	set := make(map[int]struct{})
+
 	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
-		value, err := strconv.Atoi(scanner.Text())
+		num, err := strconv.Atoi(scanner.Text())
 		if err != nil {
-			return expenses, m, err
+			return rpt, set, err
 		}
 
-		m[value] = struct{}{}
-		expenses = append(expenses, value)
+		set[num] = struct{}{}
+		rpt = append(rpt, num)
 	}
 
-	return expenses, m, nil
+	return rpt, set, nil
 }
 
-func ProductOfTwo(report []int, mapped map[int]struct{}) (int, error) {
+func ProductOfTwo(report []int, set map[int]struct{}) (int, error) {
 	for _, v := range report {
 		diff := 2020 - v
-		if _, ok := mapped[diff]; ok == true {
+		if _, ok := set[diff]; ok == true {
 			return (diff * v), nil
 		}
 	}
