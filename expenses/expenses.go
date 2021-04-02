@@ -17,10 +17,10 @@ type Report struct {
 	Unique   map[int]struct{}
 }
 
-func ReadReport(path string) (Report, error) {
+func ReadReport(path string) (*Report, error) {
 	fp, err := os.Open(path)
 	if err != nil {
-		return Report{}, err
+		return &Report{}, err
 	}
 
 	var rpt []int
@@ -30,14 +30,14 @@ func ReadReport(path string) (Report, error) {
 	for scanner.Scan() {
 		num, err := strconv.Atoi(scanner.Text())
 		if err != nil {
-			return Report{Itemized: rpt, Unique: set}, err
+			return &Report{Itemized: rpt, Unique: set}, err
 		}
 
 		set[num] = struct{}{}
 		rpt = append(rpt, num)
 	}
 
-	return Report{Itemized: rpt, Unique: set}, nil
+	return &Report{Itemized: rpt, Unique: set}, nil
 }
 
 func (r *Report) ProductOfTwo() (int, error) {
