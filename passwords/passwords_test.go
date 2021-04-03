@@ -1,6 +1,7 @@
 package passwords_test
 
 import (
+	"errors"
 	"path"
 	"testing"
 
@@ -8,22 +9,23 @@ import (
 	"github.com/natural-affinity/gotanda"
 )
 
-// test old policy
-// test new policy
-
-func TestCountValid(t *testing.T) {
+func TestPolicy(t *testing.T) {
 	cases := []struct {
 		Name   string
+		Policy passwords.Policy
 		Result int
 		Error  error
 	}{
-		{"sample", 2, nil},
-		{"database", 586, nil},
+		{"invalid", &passwords.OldPolicy{}, -1, errors.New("invalid database")},
+		{"sample", &passwords.OldPolicy{}, 2, nil},
+		{"sample", &passwords.NewPolicy{}, 1, nil},
+		{"database", &passwords.OldPolicy{}, 586, nil},
+		{"database", &passwords.NewPolicy{}, 352, nil},
 	}
 
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
-		result, err := passwords.CountValid(p)
+		result, err := passwords.Count(p, tc.Policy)
 
 		r := !(result == tc.Result)
 		e := !gotanda.CompareError(err, tc.Error)
