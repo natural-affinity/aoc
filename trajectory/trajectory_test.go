@@ -35,7 +35,7 @@ func TestScout(t *testing.T) {
 	}
 }
 
-func TestCountTrees(t *testing.T) {
+func TestCount(t *testing.T) {
 	cases := []struct {
 		Name   string
 		Result int
@@ -49,7 +49,7 @@ func TestCountTrees(t *testing.T) {
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
 		trail, _ := trajectory.Scout(p)
-		result, err := trail.CountTrees()
+		result, err := trail.Count(trajectory.Tree)
 
 		r := !(result == tc.Result)
 		e := !gotanda.CompareError(err, tc.Error)

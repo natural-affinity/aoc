@@ -17,7 +17,7 @@ type Trail struct {
 	Forest [][]rune
 }
 
-func (t *Trail) CountTrees() (int, error) {
+func (t *Trail) Count(tree rune) (int, error) {
 	x, y := 0, 0
 	h := len(t.Forest)
 	if h == 0 {
@@ -30,7 +30,7 @@ func (t *Trail) CountTrees() (int, error) {
 		x = (x + 3) % w
 		y += 1
 
-		if t.Forest[y][x] == Tree {
+		if t.Forest[y][x] == tree {
 			count += 1
 		}
 	}
