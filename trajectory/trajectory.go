@@ -14,23 +14,60 @@ var Problem = &calendar.Puzzle{Event: 2020, Desc: "Day 3: Toboggan Trajectory"}
 const Tree rune = 35
 
 type Trail struct {
-	Forest [][]rune
+	forest [][]rune
 }
 
-func (t *Trail) Count(tree rune) (int, error) {
+type Slope struct {
+	X int
+	Y int
+}
+
+type Prediction struct {
+	trees int
+	err   error
+}
+
+func (t *Trail) Predict(slopes []Slope) (int, error) {
+	forecast := make(chan Prediction, len(slopes))
+	for _, s := range slopes {
+		go func(s Slope) {
+			var p Prediction
+			p.trees, p.err = t.Count(Tree, &s)
+			forecast <- p
+		}(s)
+	}
+
+	product := 1
+	for range slopes {
+		p := <-forecast
+		if p.err != nil {
+			return -1, p.err
+		}
+
+		product *= p.trees
+	}
+
+	return product, nil
+}
+
+func (t *Trail) Count(tree rune, s *Slope) (int, error) {
 	x, y := 0, 0
-	h := len(t.Forest)
+	h := len(t.forest)
 	if h == 0 {
 		return 0, errors.New("empty map")
 	}
 
-	w := len(t.Forest[0])
+	if s == nil {
+		return 0, errors.New("invalid slope")
+	}
+
+	w := len(t.forest[0])
 	count := 0
 	for y < h-1 {
-		x = (x + 3) % w
-		y += 1
+		x = (x + s.X) % w
+		y += s.Y
 
-		if t.Forest[y][x] == tree {
+		if t.forest[y][x] == tree {
 			count += 1
 		}
 	}
@@ -46,10 +83,10 @@ func Scout(path string) (*Trail, error) {
 
 	scanner := bufio.NewScanner(fp)
 	trail := &Trail{}
-	trail.Forest = [][]rune{}
+	trail.forest = [][]rune{}
 	for scanner.Scan() {
 		columns := []rune(scanner.Text())
-		trail.Forest = append(trail.Forest, columns)
+		trail.forest = append(trail.forest, columns)
 	}
 
 	return trail, nil
