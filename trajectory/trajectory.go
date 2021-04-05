@@ -22,32 +22,18 @@ type Slope struct {
 	Y int
 }
 
-type Prediction struct {
-	trees int
-	err   error
-}
-
 func (t *Trail) Predict(slopes []Slope) (int, error) {
-	forecast := make(chan Prediction, len(slopes))
+	p := 1
 	for _, s := range slopes {
-		go func(s Slope) {
-			var p Prediction
-			p.trees, p.err = t.Count(Tree, &s)
-			forecast <- p
-		}(s)
-	}
-
-	product := 1
-	for range slopes {
-		p := <-forecast
-		if p.err != nil {
-			return -1, p.err
+		count, err := t.Count(Tree, &s)
+		if err != nil {
+			return 0, err
 		}
 
-		product *= p.trees
+		p *= count
 	}
 
-	return product, nil
+	return p, nil
 }
 
 func (t *Trail) Count(tree rune, s *Slope) (int, error) {
