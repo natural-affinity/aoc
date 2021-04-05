@@ -18,8 +18,7 @@ type Trail struct {
 }
 
 type Slope struct {
-	X int
-	Y int
+	X, Y int
 }
 
 func (t *Trail) Predict(slopes []Slope) (int, error) {
