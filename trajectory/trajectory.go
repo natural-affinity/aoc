@@ -21,6 +21,7 @@ type Slope struct {
 	X, Y int
 }
 
+// Predict is a good candidate for parallel execution
 func (t *Trail) Predict(slopes []Slope) (int, error) {
 	p := 1
 	for _, s := range slopes {
