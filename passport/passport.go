@@ -5,7 +5,12 @@ import (
 	"errors"
 	"os"
 	"strings"
+
+	"github.com/natural-affinity/aoc/calendar"
 )
+
+// Problem Identifier
+var Problem = &calendar.Puzzle{Event: 2020, Desc: "Day 4: Passport Processing"}
 
 type Validator func(passport map[string]string, required map[string]FieldValidator) bool
 type FieldValidator func(value string) bool
