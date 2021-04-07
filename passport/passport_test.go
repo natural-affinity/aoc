@@ -8,19 +8,22 @@ import (
 	"github.com/natural-affinity/gotanda"
 )
 
-func TestScan(t *testing.T) {
+func TestCount(t *testing.T) {
 	cases := []struct {
-		Name   string
-		Result int
-		Error  error
+		Name      string
+		Validator passport.Validator
+		Result    int
+		Error     error
 	}{
-		{"sample", 2, nil},
-		{"batch", 235, nil},
+		{"sample", passport.HasFields, 2, nil},
+		{"batch", passport.HasFields, 235, nil},
+		{"sample", passport.HasValidFields, 2, nil},
+		{"batch", passport.HasValidFields, 194, nil},
 	}
 
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
-		result, err := passport.Scan(p)
+		result, err := passport.Count(p, tc.Validator)
 
 		r := !(result == tc.Result)
 		e := !gotanda.CompareError(err, tc.Error)

@@ -3,46 +3,68 @@ package passport
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"os"
-	"regexp"
+	"strings"
 )
 
-var required = []string{"byr:", "iyr:", "eyr:", "hgt:", "hcl:", "ecl:", "pid:"}
+type Validator func(passport map[string]string, required map[string]FieldValidator) bool
+type FieldValidator func(value string) bool
 
-func Scan(path string) (int, error) {
+var required = map[string]FieldValidator{
+	"byr": IsValidBirth,
+	"iyr": IsValidIssue,
+	"eyr": IsValidExpiry,
+	"hgt": IsValidHeight,
+	"hcl": IsValidHairColor,
+	"ecl": IsValidEyeColor,
+	"pid": IsValidPid,
+}
+
+func HasFields(passport map[string]string, required map[string]FieldValidator) bool {
+	for f := range required {
+		if _, ok := passport[f]; !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
+func HasValidFields(passport map[string]string, required map[string]FieldValidator) bool {
+	for f, isValid := range required {
+		if v, ok := passport[f]; !ok || !isValid(v) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func Count(path string, IsValid Validator) (int, error) {
 	fp, err := os.Open(path)
 	if err != nil {
 		return -1, errors.New("invalid batch file")
 	}
 
-	re := regexp.MustCompile(`[a-z]{3}:`)
 	scanner := bufio.NewScanner(fp)
 	scanner.Split(ScanPassport)
 
-	valid := 0
+	count := 0
 	for scanner.Scan() {
 		passport := scanner.Text()
-		fields := re.FindAllString(passport, -1)
-		mapped := make(map[string]struct{})
+		fields := strings.Split(passport, " ")
+		mapped := make(map[string]string)
 
-		// concurrency candidates
 		for _, f := range fields {
-			mapped[f] = struct{}{}
+			entry := strings.Split(f, ":")
+			k, v := entry[0], entry[1]
+			mapped[k] = v
 		}
 
-		for _, r := range required {
-			if _, ok := mapped[r]; !ok {
-				valid -= 1
-				break
-			}
+		if IsValid(mapped, required) {
+			count += 1
 		}
-
-		valid += 1
-
-		fmt.Println(passport)
-		fmt.Println("----")
 	}
 
-	return valid, nil
+	return count, nil
 }
