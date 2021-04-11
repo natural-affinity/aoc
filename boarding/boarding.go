@@ -2,7 +2,6 @@ package boarding
 
 import (
 	"bufio"
-	"errors"
 	"math"
 	"os"
 	"sort"
@@ -48,16 +47,15 @@ func FindHighest(path string) (*Plane, error) {
 	plane := &Plane{Seats: []int{}}
 	fp, err := os.Open(path)
 	if err != nil {
-		return plane, errors.New("invalid boarding pass list")
+		return plane, err
 	}
+	defer fp.Close()
 
 	highest := -1
 	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
-		pass := scanner.Text()
-		runes := []rune(pass)
-
-		r, c := region(runes[:7], 127, "F", "B"), region(runes[7:], 7, "L", "R")
+		pass := []rune(scanner.Text())
+		r, c := region(pass[:7], 127, "F", "B"), region(pass[7:], 7, "L", "R")
 
 		id := r*8 + c
 		plane.Seats = append(plane.Seats, id)
