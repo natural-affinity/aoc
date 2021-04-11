@@ -16,7 +16,7 @@ func TestScout(t *testing.T) {
 		Result *trajectory.Trail
 		Error  error
 	}{
-		{"invalid", &trajectory.Trail{}, errors.New("invalid forest map")},
+		{"invalid", &trajectory.Trail{}, errors.New("open testdata/invalid.input: The system cannot find the file specified.")},
 	}
 
 	for _, tc := range cases {
@@ -43,7 +43,7 @@ func TestCount(t *testing.T) {
 	}{
 		{"map", 187, nil},
 		{"sample", 7, nil},
-		{"empty", 0, errors.New("empty map")},
+		{"empty", 0, trajectory.ErrEmptyMap},
 	}
 
 	slope := &trajectory.Slope{X: 3, Y: 1}

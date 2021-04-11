@@ -9,6 +9,8 @@ import (
 )
 
 var Problem = &calendar.Puzzle{Event: 2020, Desc: "Day 3: Toboggan Trajectory"}
+var ErrEmptyMap = errors.New("empty map")
+var ErrBadSlope = errors.New("invalid slope")
 
 // Tree (# character)
 const Tree rune = 35
@@ -40,11 +42,11 @@ func (t *Trail) Count(tree rune, s *Slope) (int, error) {
 	x, y := 0, 0
 	h := len(t.forest)
 	if h == 0 {
-		return 0, errors.New("empty map")
+		return 0, ErrEmptyMap
 	}
 
 	if s == nil {
-		return 0, errors.New("invalid slope")
+		return 0, ErrBadSlope
 	}
 
 	w := len(t.forest[0])
@@ -64,12 +66,12 @@ func (t *Trail) Count(tree rune, s *Slope) (int, error) {
 func Scout(path string) (*Trail, error) {
 	fp, err := os.Open(path)
 	if err != nil {
-		return &Trail{}, errors.New("invalid forest map")
+		return &Trail{}, err
 	}
+	defer fp.Close()
 
+	trail := &Trail{forest: [][]rune{}}
 	scanner := bufio.NewScanner(fp)
-	trail := &Trail{}
-	trail.forest = [][]rune{}
 	for scanner.Scan() {
 		columns := []rune(scanner.Text())
 		trail.forest = append(trail.forest, columns)
