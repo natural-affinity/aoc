@@ -47,7 +47,7 @@ func TestProductOfTwo(t *testing.T) {
 		Error  error
 	}{
 		{"product.match", 996075, nil},
-		{"product.no.match", -1, errors.New("No numbers found")},
+		{"product.no.match", -1, expenses.ErrNoNum},
 	}
 
 	for _, tc := range cases {
@@ -75,7 +75,7 @@ func TestProductOfThree(t *testing.T) {
 		Error  error
 	}{
 		{"product.match", 51810360, nil},
-		{"product.no.match", -1, errors.New("No numbers found")},
+		{"product.no.match", -1, expenses.ErrNoNum},
 	}
 
 	for _, tc := range cases {

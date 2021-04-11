@@ -11,6 +11,7 @@ import (
 
 // Problem identifier
 var Problem = &calendar.Puzzle{Event: 2020, Desc: "Day 1: Report Repair"}
+var ErrNoNum = errors.New("no numbers found")
 
 type Report struct {
 	Itemized []int
@@ -22,6 +23,8 @@ func ReadReport(path string) (*Report, error) {
 	if err != nil {
 		return &Report{}, err
 	}
+
+	defer fp.Close()
 
 	var rpt []int
 	set := make(map[int]struct{})
@@ -49,7 +52,7 @@ func (r *Report) ProductOfTwo() (int, error) {
 		}
 	}
 
-	return -1, errors.New("No numbers found")
+	return -1, ErrNoNum
 }
 
 func (r *Report) ProductOfThree() (int, error) {
@@ -64,5 +67,5 @@ func (r *Report) ProductOfThree() (int, error) {
 		}
 	}
 
-	return -1, errors.New("No numbers found")
+	return -1, ErrNoNum
 }
