@@ -2,7 +2,6 @@ package passport
 
 import (
 	"bufio"
-	"errors"
 	"os"
 	"strings"
 
@@ -48,16 +47,16 @@ func HasValidFields(passport map[string]string, required map[string]FieldValidat
 func Count(path string, IsValid Validator) (int, error) {
 	fp, err := os.Open(path)
 	if err != nil {
-		return -1, errors.New("invalid batch file")
+		return -1, err
 	}
 
-	scanner := bufio.NewScanner(fp)
-	scanner.Split(ScanPassport)
+	defer fp.Close()
 
 	count := 0
+	scanner := bufio.NewScanner(fp)
+	scanner.Split(ScanPassport)
 	for scanner.Scan() {
-		passport := scanner.Text()
-		fields := strings.Split(passport, " ")
+		fields := strings.Split(scanner.Text(), " ")
 		mapped := make(map[string]string)
 
 		for _, f := range fields {

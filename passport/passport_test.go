@@ -1,6 +1,7 @@
 package passport_test
 
 import (
+	"errors"
 	"path"
 	"testing"
 
@@ -19,6 +20,7 @@ func TestCount(t *testing.T) {
 		{"batch", passport.HasFields, 235, nil},
 		{"sample", passport.HasValidFields, 2, nil},
 		{"batch", passport.HasValidFields, 194, nil},
+		{"not.found", nil, -1, errors.New("open testdata/not.found.input: The system cannot find the file specified.")},
 	}
 
 	for _, tc := range cases {
