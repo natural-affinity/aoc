@@ -30,7 +30,6 @@ func (p *Plane) FindMySeat() (int, error) {
 
 func region(runes []rune, max int, c1 string, c2 string) int {
 	min := 0
-
 	for i := 0; i < len(runes); i++ {
 		char := string(runes[i])
 		diff := int(math.Ceil(float64(max-min) / 2))
@@ -44,8 +43,6 @@ func region(runes []rune, max int, c1 string, c2 string) int {
 
 	return min
 }
-
-// TBD: pipeline (r -> c -> id -- keep highest), all done? (sort)
 
 func FindHighest(path string) (*Plane, error) {
 	plane := &Plane{Seats: []int{}}
