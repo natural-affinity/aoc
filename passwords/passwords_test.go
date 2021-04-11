@@ -16,7 +16,7 @@ func TestPolicy(t *testing.T) {
 		Result int
 		Error  error
 	}{
-		{"invalid", &passwords.OldPolicy{}, -1, errors.New("invalid database")},
+		{"invalid", &passwords.OldPolicy{}, -1, errors.New("open testdata/invalid.input: The system cannot find the file specified.")},
 		{"sample", &passwords.OldPolicy{}, 2, nil},
 		{"sample", &passwords.NewPolicy{}, 1, nil},
 		{"database", &passwords.OldPolicy{}, 586, nil},
@@ -31,10 +31,7 @@ func TestPolicy(t *testing.T) {
 		e := !gotanda.CompareError(err, tc.Error)
 
 		if e || r {
-			t.Errorf("\nTest: %s\nExpected:\n %d %s\nActual:\n %d %s",
-				tc.Name,
-				tc.Result, tc.Error,
-				result, err)
+			t.Errorf("\nTest: %s\nExpected:\n %d %s\nActual:\n %d %s", tc.Name, tc.Result, tc.Error, result, err)
 		}
 	}
 }

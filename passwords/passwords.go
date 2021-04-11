@@ -2,7 +2,6 @@ package passwords
 
 import (
 	"bufio"
-	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -48,11 +47,12 @@ func (np *NewPolicy) IsValid(pass string, c *Criteria) (bool, error) {
 func Count(path string, p Policy) (int, error) {
 	fp, err := os.Open(path)
 	if err != nil {
-		return -1, errors.New("invalid database")
+		return -1, err
 	}
+	defer fp.Close()
 
-	scanner := bufio.NewScanner(fp)
 	valid := 0
+	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
 		tokens := strings.Split(scanner.Text(), " ")
 		rng := strings.Split(tokens[0], "-")
