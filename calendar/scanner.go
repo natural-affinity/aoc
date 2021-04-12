@@ -1,9 +1,9 @@
-package passport
+package calendar
 
 import "bytes"
 
-// ScanPassport is a modification of bufio.ScanLines (https://golang.org/src/bufio/scan.go?s=11967:12045#L340)
-func ScanPassport(data []byte, atEOF bool) (advance int, token []byte, err error) {
+// SplitMultiline is a modification of bufio.ScanLines (https://golang.org/src/bufio/scan.go?s=11967:12045#L340)
+func SplitMulti(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil
 	}

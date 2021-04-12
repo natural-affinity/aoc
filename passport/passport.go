@@ -54,7 +54,7 @@ func Count(path string, IsValid Validator) (int, error) {
 
 	count := 0
 	scanner := bufio.NewScanner(fp)
-	scanner.Split(ScanPassport)
+	scanner.Split(calendar.SplitMulti)
 	for scanner.Scan() {
 		fields := strings.Split(scanner.Text(), " ")
 		mapped := make(map[string]string)
