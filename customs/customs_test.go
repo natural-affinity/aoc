@@ -1,10 +1,10 @@
 package customs_test
 
 import (
-	"errors"
 	"path"
 	"testing"
 
+	"github.com/natural-affinity/aoc/calendar"
 	"github.com/natural-affinity/aoc/customs"
 	"github.com/natural-affinity/gotanda"
 )
@@ -12,17 +12,19 @@ import (
 func TestDeclarations(t *testing.T) {
 	cases := []struct {
 		Name   string
+		Rule   customs.SumRule
 		Result int
 		Error  error
 	}{
-		{"not.found", -1, errors.New("open testdata/not.found.input: The system cannot find the file specified.")},
-		{"sample", 11, nil},
-		{"forms", 6775, nil},
+		{"not.found", nil, -1, calendar.ErrFileNotFound},
+		{"sample", customs.SumAnyYes, 11, nil},
+		{"forms", customs.SumAnyYes, 6775, nil},
+		{"forms", customs.SumAllYes, 3356, nil},
 	}
 
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
-		result, err := customs.Declarations(p)
+		result, err := customs.SumDeclarations(p, tc.Rule)
 
 		r := !(result == tc.Result)
 		e := !gotanda.CompareError(err, tc.Error)
