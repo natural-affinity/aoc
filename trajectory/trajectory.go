@@ -12,8 +12,7 @@ var Problem = &calendar.Puzzle{Event: 2020, Desc: "Day 3: Toboggan Trajectory"}
 var ErrEmptyMap = errors.New("empty map")
 var ErrBadSlope = errors.New("invalid slope")
 
-// Tree (# character)
-const Tree rune = 35
+const Tree rune = 35 // (# character)
 
 type Trail struct {
 	forest [][]rune

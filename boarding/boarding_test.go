@@ -1,11 +1,11 @@
 package boarding_test
 
 import (
-	"errors"
 	"path"
 	"testing"
 
 	"github.com/natural-affinity/aoc/boarding"
+	"github.com/natural-affinity/aoc/calendar"
 	"github.com/natural-affinity/gotanda"
 )
 
@@ -17,7 +17,7 @@ func TestFindHighest(t *testing.T) {
 	}{
 		{"sample", 820, nil},
 		{"passes", 858, nil},
-		{"not.found", 0, errors.New("open testdata/not.found.input: The system cannot find the file specified.")},
+		{"not.found", 0, calendar.ErrFileNotFound},
 	}
 
 	for _, tc := range cases {

@@ -1,10 +1,10 @@
 package passport_test
 
 import (
-	"errors"
 	"path"
 	"testing"
 
+	"github.com/natural-affinity/aoc/calendar"
 	"github.com/natural-affinity/aoc/passport"
 	"github.com/natural-affinity/gotanda"
 )
@@ -20,7 +20,7 @@ func TestCount(t *testing.T) {
 		{"batch", passport.HasFields, 235, nil},
 		{"sample", passport.HasValidFields, 2, nil},
 		{"batch", passport.HasValidFields, 194, nil},
-		{"not.found", nil, -1, errors.New("open testdata/not.found.input: The system cannot find the file specified.")},
+		{"not.found", nil, -1, calendar.ErrFileNotFound},
 	}
 
 	for _, tc := range cases {

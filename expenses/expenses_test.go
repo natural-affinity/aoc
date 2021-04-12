@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/natural-affinity/aoc/calendar"
 	"github.com/natural-affinity/aoc/expenses"
 	"github.com/natural-affinity/gotanda"
 )
@@ -18,7 +19,7 @@ func TestReadReport(t *testing.T) {
 	}{
 		{"read.empty.report", &expenses.Report{nil, map[int]struct{}{}}, nil},
 		{"read.partial.invalid.report", &expenses.Report{[]int{1}, map[int]struct{}{1: {}}}, errors.New("strconv.Atoi: parsing \"a\": invalid syntax")},
-		{"read.invalid.path", &expenses.Report{nil, nil}, errors.New("open testdata/read.invalid.path.input: The system cannot find the file specified.")},
+		{"not.found", &expenses.Report{nil, nil}, calendar.ErrFileNotFound},
 	}
 
 	for _, tc := range cases {

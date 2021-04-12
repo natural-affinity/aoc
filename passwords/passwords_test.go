@@ -1,10 +1,10 @@
 package passwords_test
 
 import (
-	"errors"
 	"path"
 	"testing"
 
+	"github.com/natural-affinity/aoc/calendar"
 	"github.com/natural-affinity/aoc/passwords"
 	"github.com/natural-affinity/gotanda"
 )
@@ -16,7 +16,7 @@ func TestPolicy(t *testing.T) {
 		Result int
 		Error  error
 	}{
-		{"invalid", &passwords.OldPolicy{}, -1, errors.New("open testdata/invalid.input: The system cannot find the file specified.")},
+		{"not.found", &passwords.OldPolicy{}, -1, calendar.ErrFileNotFound},
 		{"sample", &passwords.OldPolicy{}, 2, nil},
 		{"sample", &passwords.NewPolicy{}, 1, nil},
 		{"database", &passwords.OldPolicy{}, 586, nil},

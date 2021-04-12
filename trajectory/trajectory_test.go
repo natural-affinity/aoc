@@ -1,11 +1,11 @@
 package trajectory_test
 
 import (
-	"errors"
 	"path"
 	"reflect"
 	"testing"
 
+	"github.com/natural-affinity/aoc/calendar"
 	"github.com/natural-affinity/aoc/trajectory"
 	"github.com/natural-affinity/gotanda"
 )
@@ -16,7 +16,7 @@ func TestScout(t *testing.T) {
 		Result *trajectory.Trail
 		Error  error
 	}{
-		{"invalid", &trajectory.Trail{}, errors.New("open testdata/invalid.input: The system cannot find the file specified.")},
+		{"not.found", &trajectory.Trail{}, calendar.ErrFileNotFound},
 	}
 
 	for _, tc := range cases {
