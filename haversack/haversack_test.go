@@ -4,26 +4,32 @@ import (
 	"path"
 	"testing"
 
+	"github.com/natural-affinity/aoc/calendar"
 	"github.com/natural-affinity/aoc/haversack"
+	"github.com/natural-affinity/gotanda"
 )
 
 func TestCountColors(t *testing.T) {
 	cases := []struct {
 		Name   string
 		Result int
+		Error  error
 	}{
-		{"sample", 4},
-		{"rules", 151},
+		{"not.found", 0, calendar.ErrFileNotFound},
+		{"sample", 4, nil},
+		{"rules", 151, nil},
 	}
 
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
-		rules, _ := haversack.Parse(p)
+		rules, err := haversack.Parse(p)
 		result := haversack.Count(rules, "shiny gold")
 
 		r := !(result == tc.Result)
-		if r {
-			t.Errorf("Case: %s, Expected: %v, Actual: %v", tc.Name, tc.Result, result)
+		e := !(gotanda.CompareError(err, tc.Error))
+
+		if r || e {
+			t.Errorf("Case: %s, Expected: %v, %s Actual: %v, %s", tc.Name, tc.Result, tc.Error, result, err)
 		}
 	}
 }
