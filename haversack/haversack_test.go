@@ -43,6 +43,7 @@ func TestBagsInGold(t *testing.T) {
 		{"not.found", 0, calendar.ErrFileNotFound},
 		{"sample", 32, nil},
 		{"sample2", 126, nil},
+		{"rules", 41559, nil},
 	}
 
 	for _, tc := range cases {
