@@ -2,35 +2,60 @@ package haversack
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
-var TrimRegex = regexp.MustCompile(` bag(s)?\.?(\s|,\s)?(contain\s?)?(\d+)?`)
-var Colors = regexp.MustCompile(`(?P<color>[a-z]+\s[a-z]+){1}(?:\sbag)`)
+const Gold = "shiny gold"
 
-type Rules map[string]map[string]struct{}
+var TrimRegex = regexp.MustCompile(` bag(s)?\.?(\s|,\s)?(contain\s?)?`)
+var BagRegex = regexp.MustCompile(`(\d+) ([a-z\s-a-z]+){1}`)
+
+type Rules map[string]Bag
+type Bag map[string]int
 type Set map[string]struct{}
 
-func HasGold(color string, s Set, sack Rules, found Set) {
-	if _, ok := s["shiny gold"]; ok {
+func HasColor(color string, b Bag, sack Rules, found Set, target string) {
+	if n, ok := b[target]; ok {
 		found[color] = struct{}{}
+		fmt.Println(n)
 		return
 	}
 
-	for c := range s {
-		HasGold(color, sack[c], sack, found)
+	for c := range b {
+		HasColor(color, sack[c], sack, found, target)
 	}
 }
 
-func Count(sack Rules, target string) int {
+func CountColor(sack Rules, target string) int {
 	var found = make(Set)
-	for color, set := range sack {
-		HasGold(color, set, sack, found)
+	for color, bag := range sack {
+		HasColor(color, bag, sack, found, target)
 	}
 
 	return len(found)
+}
+
+func CountNested(b Bag, sack Rules) int {
+	sum := 0
+	next := []Bag{b}
+	for {
+		if len(next) == 0 {
+			return sum
+		}
+
+		current := next[0]
+		next = next[1:]
+		for color, count := range current {
+			sum += count
+			for i := 0; i < count; i++ {
+				next = append(next, sack[color])
+			}
+		}
+	}
 }
 
 func Parse(path string) (Rules, error) {
@@ -48,11 +73,23 @@ func Parse(path string) (Rules, error) {
 
 		colors := strings.Split(line, ",")
 		first := strings.TrimSpace(colors[0])
+		rules[first] = make(Bag)
+		for _, c := range colors[1 : len(colors)-1] {
+			var count int
+			var color string
 
-		rules[first] = make(Set)
-		for _, c := range colors[1:] {
-			color := strings.TrimSpace(c)
-			rules[first][color] = struct{}{}
+			matches := BagRegex.FindAllStringSubmatch(c, -1)
+			if len(matches) > 0 {
+				count, err = strconv.Atoi(matches[0][1])
+				color = matches[0][2]
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				color = strings.TrimSpace(c)
+			}
+
+			rules[first][color] = count
 		}
 	}
 
