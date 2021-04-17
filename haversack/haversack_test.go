@@ -23,7 +23,7 @@ func TestCountBagsWithGold(t *testing.T) {
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
 		rules, err := haversack.Parse(p)
-		result := haversack.CountColor(rules, haversack.Gold)
+		result := rules.CountColor(haversack.Gold)
 
 		r := !(result == tc.Result)
 		e := !(gotanda.CompareError(err, tc.Error))
@@ -48,7 +48,7 @@ func TestBagsInGold(t *testing.T) {
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
 		rules, err := haversack.Parse(p)
-		result := haversack.CountNested(rules[haversack.Gold], rules)
+		result := rules.CountNested(rules[haversack.Gold])
 
 		r := !(result == tc.Result)
 		e := !(gotanda.CompareError(err, tc.Error))

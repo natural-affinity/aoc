@@ -2,7 +2,6 @@ package haversack
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"regexp"
 	"strconv"
@@ -14,14 +13,13 @@ const Gold = "shiny gold"
 var TrimRegex = regexp.MustCompile(` bag(s)?\.?(\s|,\s)?(contain\s?)?`)
 var BagRegex = regexp.MustCompile(`(\d+) ([a-z\s-a-z]+){1}`)
 
-type Rules map[string]Bag
+type Sack map[string]Bag
 type Bag map[string]int
 type Set map[string]struct{}
 
-func HasColor(color string, b Bag, sack Rules, found Set, target string) {
-	if n, ok := b[target]; ok {
+func HasColor(color string, b Bag, sack Sack, found Set, target string) {
+	if _, ok := b[target]; ok {
 		found[color] = struct{}{}
-		fmt.Println(n)
 		return
 	}
 
@@ -30,16 +28,16 @@ func HasColor(color string, b Bag, sack Rules, found Set, target string) {
 	}
 }
 
-func CountColor(sack Rules, target string) int {
+func (s Sack) CountColor(target string) int {
 	var found = make(Set)
-	for color, bag := range sack {
-		HasColor(color, bag, sack, found, target)
+	for color, bag := range s {
+		HasColor(color, bag, s, found, target)
 	}
 
 	return len(found)
 }
 
-func CountNested(b Bag, sack Rules) int {
+func (s Sack) CountNested(b Bag) int {
 	sum := 0
 	next := []Bag{b}
 	for {
@@ -52,20 +50,20 @@ func CountNested(b Bag, sack Rules) int {
 		for color, count := range current {
 			sum += count
 			for i := 0; i < count; i++ {
-				next = append(next, sack[color])
+				next = append(next, s[color])
 			}
 		}
 	}
 }
 
-func Parse(path string) (Rules, error) {
+func Parse(path string) (Sack, error) {
 	fp, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer fp.Close()
 
-	var rules = make(Rules)
+	var rules = make(Sack)
 	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
 		line := scanner.Text()
