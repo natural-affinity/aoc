@@ -9,7 +9,7 @@ import (
 
 type Instruction struct {
 	op  string
-	arg string
+	arg int
 }
 
 type Bootloader struct {
@@ -21,17 +21,12 @@ func (b *Bootloader) Lines() int {
 	return len(b.code)
 }
 
-func (b *Bootloader) Execute(i *Instruction) (jump int, err error) {
-	arg, err := strconv.Atoi(i.arg)
-	if err != nil {
-		return 0, err
-	}
-
+func (b *Bootloader) Execute(i *Instruction) (jmp int, err error) {
 	switch {
 	case i.op == "acc":
-		b.acc += arg
+		b.acc += i.arg
 	case i.op == "jmp":
-		return arg, nil
+		return i.arg, nil
 	}
 
 	return 1, nil
@@ -45,13 +40,13 @@ func (b *Bootloader) RunOnce() (int, error) {
 			return b.acc, nil
 		}
 
-		jump, err := b.Execute(b.code[ip])
+		jmp, err := b.Execute(b.code[ip])
 		if err != nil {
 			return -1, err
 		}
 
 		done[ip] = struct{}{}
-		ip += jump
+		ip += jmp
 	}
 }
 
@@ -66,7 +61,12 @@ func Load(path string) (*Bootloader, error) {
 	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
 		line := strings.Split(scanner.Text(), " ")
-		ins := &Instruction{op: line[0], arg: line[1]}
+		arg, err := strconv.Atoi(line[1])
+		if err != nil {
+			return boot, err
+		}
+
+		ins := &Instruction{op: line[0], arg: arg}
 		boot.code = append(boot.code, ins)
 	}
 

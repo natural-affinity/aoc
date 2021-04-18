@@ -1,6 +1,7 @@
 package halting_test
 
 import (
+	"errors"
 	"path"
 	"testing"
 
@@ -16,6 +17,7 @@ func TestLoad(t *testing.T) {
 		Error error
 	}{
 		{"not.found", 0, calendar.ErrFileNotFound},
+		{"invalid.arg", 0, errors.New(`strconv.Atoi: parsing "+string": invalid syntax`)},
 		{"sample", 9, nil},
 	}
 
