@@ -13,38 +13,34 @@ type Instruction struct {
 }
 
 type Bootloader struct {
+	Acc  int
 	code []*Instruction
-	acc  int
 }
 
 func (b *Bootloader) Lines() int {
 	return len(b.code)
 }
 
-func (b *Bootloader) Execute(i *Instruction) (jmp int, err error) {
+func (b *Bootloader) Execute(i *Instruction) (jmp int) {
 	switch {
 	case i.op == "acc":
-		b.acc += i.arg
+		b.Acc += i.arg
 	case i.op == "jmp":
-		return i.arg, nil
+		return i.arg
 	}
 
-	return 1, nil
+	return 1
 }
 
-func (b *Bootloader) RunOnce() (int, error) {
+func (b *Bootloader) RunOnce() {
 	done := map[int]struct{}{}
 	ip := 0
 	for {
 		if _, run := done[ip]; run {
-			return b.acc, nil
+			return
 		}
 
-		jmp, err := b.Execute(b.code[ip])
-		if err != nil {
-			return -1, err
-		}
-
+		jmp := b.Execute(b.code[ip])
 		done[ip] = struct{}{}
 		ip += jmp
 	}

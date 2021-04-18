@@ -42,26 +42,19 @@ func TestRunOnce(t *testing.T) {
 	cases := []struct {
 		Name   string
 		Result int
-		Error  error
 	}{
-		{"sample", 5, nil},
-		{"boot", 1217, nil},
+		{"sample", 5},
+		{"boot", 1217},
 	}
 
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
 
 		boot, _ := halting.Load(p)
-		result, err := boot.RunOnce()
+		boot.RunOnce()
 
-		r := !(result == tc.Result)
-		e := !gotanda.CompareError(err, tc.Error)
-
-		if e || r {
-			t.Errorf("Test: %s\nExpected:\n %d %s\nActual:\n %d %s",
-				tc.Name,
-				tc.Result, tc.Error,
-				result, err)
+		if !(boot.Acc == tc.Result) {
+			t.Errorf("Test: %s\nExpected:\n %d\nActual:\n %d", tc.Name, tc.Result, boot.Acc)
 		}
 	}
 }
