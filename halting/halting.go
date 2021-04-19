@@ -8,12 +8,8 @@ import (
 	"strings"
 )
 
-type Execution int
-
-const (
-	Incomplete Execution = iota
-	Complete
-)
+var ErrPartialResult = errors.New("partial result")
+var ErrRepairFailed = errors.New("repair faild")
 
 type Instruction struct {
 	op  string
@@ -23,14 +19,6 @@ type Instruction struct {
 type Bootloader struct {
 	code    []*Instruction
 	repairs []int
-}
-
-func (i *Instruction) TryRepair() *Instruction {
-	if i.op == "nop" {
-		return &Instruction{arg: i.arg, op: "jmp"}
-	}
-
-	return &Instruction{arg: i.arg, op: "nop"}
 }
 
 func (i *Instruction) Execute(ip *int, acc *int) {
@@ -48,28 +36,34 @@ func (i *Instruction) Execute(ip *int, acc *int) {
 func (b *Bootloader) Repair() (int, error) {
 	for _, i := range b.repairs {
 		ins := b.code[i]
-		b.code[i] = ins.TryRepair()
 
-		if result, acc := b.Run(); result == Complete {
+		switch ins.op {
+		case "nop":
+			b.code[i] = &Instruction{arg: ins.arg, op: "jmp"}
+		case "jmp":
+			b.code[i] = &Instruction{arg: ins.arg, op: "nop"}
+		}
+
+		if acc, err := b.Run(); err == nil {
 			return acc, nil
 		}
 
 		b.code[i] = ins
 	}
 
-	return -1, errors.New("program corrupt, no fix found")
+	return -1, ErrRepairFailed
 }
 
-func (b *Bootloader) Run() (Execution, int) {
+func (b *Bootloader) Run() (int, error) {
 	done := map[int]struct{}{}
 	ip, acc := 0, 0
 	for {
 		if _, run := done[ip]; run {
-			return Incomplete, acc
+			return acc, ErrPartialResult
 		}
 
 		if ip == len(b.code) {
-			return Complete, acc
+			return acc, nil
 		}
 
 		done[ip] = struct{}{}
