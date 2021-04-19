@@ -23,22 +23,21 @@ func TestLoad(t *testing.T) {
 
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
+		_, lines, err := halting.Load(p)
 
-		result, err := halting.Load(p)
-
-		r := !(result == nil || result.Lines() == tc.Lines)
+		r := !(lines == tc.Lines)
 		e := !gotanda.CompareError(err, tc.Error)
 
 		if e || r {
 			t.Errorf("\nTest: %s\nExpected:\n %d %s\nActual:\n %v %s",
 				tc.Name,
 				tc.Lines, tc.Error,
-				result, err)
+				lines, err)
 		}
 	}
 }
 
-func TestRunOnce(t *testing.T) {
+func TestRun(t *testing.T) {
 	cases := []struct {
 		Name   string
 		Result int
@@ -49,12 +48,35 @@ func TestRunOnce(t *testing.T) {
 
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
+		boot, _, _ := halting.Load(p)
+		_, acc := boot.Run()
 
-		boot, _ := halting.Load(p)
-		boot.RunOnce()
+		if !(acc == tc.Result) {
+			t.Errorf("Test: %s\nExpected:\n %d\nActual:\n %d", tc.Name, tc.Result, acc)
+		}
+	}
+}
 
-		if !(boot.Acc == tc.Result) {
-			t.Errorf("Test: %s\nExpected:\n %d\nActual:\n %d", tc.Name, tc.Result, boot.Acc)
+func TestRepair(t *testing.T) {
+	cases := []struct {
+		Name   string
+		Result int
+		Error  error
+	}{
+		{"sample", 8, nil},
+		{"boot", 501, nil},
+	}
+
+	for _, tc := range cases {
+		p := path.Join("testdata", tc.Name+".input")
+		boot, _, _ := halting.Load(p)
+		acc, err := boot.Repair()
+
+		r := !(acc == tc.Result)
+		e := !gotanda.CompareError(err, tc.Error)
+
+		if r || e {
+			t.Errorf("Test: %s\nExpected:\n %d %s\nActual:\n %d %s", tc.Name, tc.Result, tc.Error, acc, err)
 		}
 	}
 }
