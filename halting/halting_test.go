@@ -72,10 +72,11 @@ func TestRepair(t *testing.T) {
 		{"boot", 501, nil},
 	}
 
+	op := map[string]string{"nop": "jmp", "jmp": "nop"}
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
 		boot, _, _ := halting.Load(p)
-		acc, err := boot.Repair()
+		acc, err := boot.Repair(op)
 
 		r := !(acc == tc.Result)
 		e := !gotanda.CompareError(err, tc.Error)
