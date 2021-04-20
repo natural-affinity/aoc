@@ -18,7 +18,7 @@ type Instruction struct {
 
 type Bootloader struct {
 	code    []*Instruction
-	repairs []int
+	repairs map[int]string
 }
 
 func (i *Instruction) Execute(ip *int, acc *int) {
@@ -34,21 +34,15 @@ func (i *Instruction) Execute(ip *int, acc *int) {
 }
 
 func (b *Bootloader) Repair() (int, error) {
-	for _, i := range b.repairs {
-		ins := b.code[i]
-
-		switch ins.op {
-		case "nop":
-			b.code[i] = &Instruction{arg: ins.arg, op: "jmp"}
-		case "jmp":
-			b.code[i] = &Instruction{arg: ins.arg, op: "nop"}
-		}
+	for line, op := range b.repairs {
+		ins := b.code[line]
+		b.code[line] = &Instruction{op: op, arg: ins.arg}
 
 		if acc, err := b.Run(); err == nil {
 			return acc, nil
 		}
 
-		b.code[i] = ins
+		b.code[line] = ins
 	}
 
 	return -1, ErrRepairFailed
@@ -78,7 +72,7 @@ func Load(path string) (program *Bootloader, lines int, err error) {
 	}
 	defer fp.Close()
 
-	boot := &Bootloader{}
+	boot := &Bootloader{repairs: make(map[int]string)}
 	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
 		line := strings.Split(scanner.Text(), " ")
@@ -89,8 +83,10 @@ func Load(path string) (program *Bootloader, lines int, err error) {
 
 		ins := &Instruction{op: line[0], arg: arg}
 		boot.code = append(boot.code, ins)
-		if ins.op == "nop" || ins.op == "jmp" {
-			boot.repairs = append(boot.repairs, len(boot.code)-1)
+		if ins.op == "nop" {
+			boot.repairs[len(boot.code)-1] = "jmp"
+		} else if ins.op == "jmp" {
+			boot.repairs[len(boot.code)-1] = "nop"
 		}
 	}
 
