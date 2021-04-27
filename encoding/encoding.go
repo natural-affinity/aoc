@@ -18,11 +18,11 @@ type Cipher struct {
 	Len      int
 }
 
-func HasSum(n int, last LastN) (int, bool) {
-	for a := range last {
+func HasSum(n int, m LastN) (int, bool) {
+	for a := range m {
 		diff := int(math.Abs(float64(n - a)))
 
-		if _, ok := last[diff]; ok && diff != a {
+		if _, ok := m[diff]; ok && diff != a {
 			return n, true
 		}
 	}
@@ -71,7 +71,7 @@ func Read(path string) (*Cipher, error) {
 
 		c.xmas = append(c.xmas, n)
 	}
-	c.Len = len(c.xmas)
 
+	c.Len = len(c.xmas)
 	return c, nil
 }
