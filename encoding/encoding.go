@@ -11,53 +11,67 @@ import (
 var ErrBadPreamble = errors.New("invalid preamble length")
 var ErrNumNotFound = errors.New("number not found")
 
-func HasSum(n int, last []int) (int, bool) {
-	for idx, a := range last {
+type LastN map[int]struct{}
+type Cipher struct {
+	xmas     []int
+	preamble LastN
+	Len      int
+}
+
+func HasSum(n int, last LastN) (int, bool) {
+	for a := range last {
 		diff := int(math.Abs(float64(n - a)))
 
-		for idx2, b := range last {
-			if idx != idx2 && (diff-b == 0) {
-				return n, true
-			}
+		if _, ok := last[diff]; ok && diff != a {
+			return n, true
 		}
 	}
 
 	return n, false
 }
 
-func Decipher(xmas []int, pre int) (int, error) {
+func (c *Cipher) Decipher(pre int) (int, error) {
 	if pre < 0 {
 		return -1, ErrBadPreamble
 	}
 
-	for i := pre; i < len(xmas); i++ {
-		last := xmas[i-pre : i]
+	for i := 0; i < pre; i++ {
+		n := c.xmas[i]
+		c.preamble[n] = struct{}{}
+	}
 
-		if n, ok := HasSum(xmas[i], last); !ok {
+	for i := pre; i < len(c.xmas); i++ {
+		prev, next := c.xmas[i-pre], c.xmas[i]
+
+		if n, ok := HasSum(next, c.preamble); !ok {
 			return n, nil
 		}
+
+		delete(c.preamble, prev)
+		c.preamble[next] = struct{}{}
 	}
 
 	return -1, ErrNumNotFound
 }
 
-func Read(path string) ([]int, error) {
+func Read(path string) (*Cipher, error) {
 	fp, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return &Cipher{}, err
 	}
 	defer fp.Close()
 
-	var xmas []int
+	c := &Cipher{preamble: make(LastN)}
 	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
 		n, err := strconv.Atoi(scanner.Text())
 		if err != nil {
-			return xmas, err
+			return c, err
 		}
 
-		xmas = append(xmas, n)
+		c.xmas = append(c.xmas, n)
 	}
+	c.Len = len(c.xmas)
 
-	return xmas, nil
+	return c, nil
 }

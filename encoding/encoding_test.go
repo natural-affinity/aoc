@@ -9,6 +9,8 @@ import (
 	"github.com/natural-affinity/gotanda"
 )
 
+var E = struct{}{}
+
 func TestRead(t *testing.T) {
 	cases := []struct {
 		Name  string
@@ -24,7 +26,7 @@ func TestRead(t *testing.T) {
 		p := path.Join("testdata", tc.Name+".input")
 		result, err := encoding.Read(p)
 
-		r := !(len(result) == tc.Count)
+		r := !(result.Len == tc.Count)
 		e := !(gotanda.CompareError(err, tc.Error))
 
 		if r || e {
@@ -36,15 +38,15 @@ func TestRead(t *testing.T) {
 func TestSum(t *testing.T) {
 	cases := []struct {
 		Name   string
-		Last   []int
+		Last   map[int]struct{}
 		Num    int
 		Result bool
 	}{
-		{"has.sum.1", []int{20, 5, 10, 4}, 9, true},
-		{"has.sum.2", []int{1, 2, 7, 21}, 28, true},
-		{"no.sum.1", []int{2, 4, 6, 8}, 16, false},
-		{"no.sum.2", []int{20, 35, 27, 68}, 45, false},
-		{"no.repeat", []int{10, 11, 12}, 20, false},
+		{"has.sum.1", map[int]struct{}{20: E, 5: E, 10: E, 4: E}, 9, true},
+		{"has.sum.2", map[int]struct{}{1: E, 2: E, 7: E, 21: E}, 28, true},
+		{"no.sum.1", map[int]struct{}{2: E, 4: E, 6: E, 8: E}, 16, false},
+		{"no.sum.2", map[int]struct{}{20: E, 35: E, 27: E, 68: E}, 45, false},
+		{"no.repeat", map[int]struct{}{10: E, 11: E, 12: E}, 20, false},
 	}
 
 	for _, tc := range cases {
@@ -72,7 +74,7 @@ func TestDecipher(t *testing.T) {
 	for _, tc := range cases {
 		p := path.Join("testdata", tc.Name+".input")
 		xmas, _ := encoding.Read(p)
-		result, err := encoding.Decipher(xmas, tc.Preamble)
+		result, err := xmas.Decipher(tc.Preamble)
 
 		r := !(result == tc.Result)
 		e := !(gotanda.CompareError(err, tc.Error))
