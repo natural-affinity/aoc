@@ -8,8 +8,10 @@ import (
 	"strconv"
 )
 
-var ErrBadPreamble = errors.New("invalid preamble length")
-var ErrNumNotFound = errors.New("number not found")
+var (
+	ErrBadPreamble = errors.New("invalid preamble length")
+	ErrNumNotFound = errors.New("number not found")
+)
 
 type LastN map[int]struct{}
 type Cipher struct {
